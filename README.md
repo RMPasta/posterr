@@ -18,6 +18,8 @@ Prefer plain English, shorter sentences, realistic uncertainty, and practical us
 
 ## Setup
 
+**Full guide (domains, Vercel, Google, Supabase, auth code paths, troubleshooting):** [docs/setup-and-deployment.md](docs/setup-and-deployment.md).
+
 ### Node and where to run `npm`
 
 Use **Node 20 LTS** (≥ 20.19) or **Node 22+** (≥ 22.13). **Node 21 is not supported** by several dependencies (you will see `EBADENGINE`).
