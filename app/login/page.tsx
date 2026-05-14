@@ -1,8 +1,7 @@
 import Link from "next/link";
 
-import { signInWithGoogle } from "@/app/login/actions";
-import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export default async function LoginPage({
   searchParams,
@@ -10,7 +9,9 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
   const sp = await searchParams;
-  const next = sp.next?.trim() && sp.next.startsWith("/") && !sp.next.startsWith("//") ? sp.next : "/dashboard";
+  const next =
+    sp.next?.trim() && sp.next.startsWith("/") && !sp.next.startsWith("//") ? sp.next : "/dashboard";
+  const googleHref = `/api/auth/google?next=${encodeURIComponent(next)}`;
 
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col justify-center px-4 py-16">
@@ -30,12 +31,17 @@ export default async function LoginPage({
           </p>
         ) : null}
 
-        <form action={signInWithGoogle} className="mt-6">
-          <input type="hidden" name="next" value={next} />
-          <Button type="submit" variant="primary" className="w-full">
+        <div className="mt-6">
+          <Link
+            href={googleHref}
+            className={cn(
+              "inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "bg-sky-700 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500",
+            )}
+          >
             Continue with Google
-          </Button>
-        </form>
+          </Link>
+        </div>
 
         <p className="mt-4 text-center text-sm text-zinc-500">
           <Link href="/" className="text-sky-700 hover:underline dark:text-sky-400">

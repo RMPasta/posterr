@@ -6,7 +6,7 @@ Posterr is an AI writing workbench for turning rough ideas into plain, believabl
 
 ## MVP features
 
-- Landing page, Google sign-in (Supabase Auth), protected dashboard
+- Landing page, Google sign-in (OAuth on your domain → Supabase session), protected dashboard
 - Generator with platform-aware options and structured AI output
 - Save drafts, library with search and platform filter, draft detail with edit/delete
 - User defaults (platform, tone, writing level, length)
@@ -43,23 +43,19 @@ If you prefer Windows-native tooling, clone the repo onto an **NTFS** path (e.g.
 
 3. **Run SQL schema** from `supabase/migrations/001_initial.sql` in the Supabase SQL editor (tables + RLS).
 
-4. **Google Cloud — OAuth 2.0 Web Client** (APIs & Services → Credentials → Create credentials → OAuth client ID → **Web application**).
+4. **Google Cloud — OAuth 2.0 Web Client** (APIs & Services → Credentials → OAuth client ID → **Web application**).
 
-   - **Authorized redirect URIs** (required): add **exactly**  
-     `https://<YOUR_PROJECT_REF>.supabase.co/auth/v1/callback`  
-     Use your real project hostname from **Supabase → Project Settings → API** (`NEXT_PUBLIC_SUPABASE_URL`). Google sends users back to Supabase here, not to Posterr first.
-   - **Authorized JavaScript origins**: add where the app runs, for example  
-     `http://localhost:3000` and your production origin (e.g. `https://www.posterr.xyz` if that is canonical). If Google rejects saving until the consent screen is ready, configure the **OAuth consent screen** (External, your email as test user while in Testing).
-   - Create the client and copy **Client ID** and **Client secret**.
+   - **Authorized redirect URIs**: your **Posterr** app (not Supabase). Add both, matching `NEXT_PUBLIC_SITE_URL` with no trailing slash:  
+     `http://localhost:3000/api/auth/google/callback`  
+     `https://www.posterr.xyz/api/auth/google/callback` (use your real production origin, e.g. apex if that is canonical).
+   - **Remove** any old entry like `https://<ref>.supabase.co/auth/v1/callback` unless you still use Supabase-hosted Google elsewhere.
+   - **Authorized JavaScript origins**: `http://localhost:3000` and your production origin (e.g. `https://www.posterr.xyz`).
+   - **OAuth consent screen**: app name “Posterr”, support email, etc. (so Google shows your brand, not `supabase.co`.)
+   - Copy **Client ID** and **Client secret**.
 
-5. **Supabase — enable Google** (Authentication → Sign In / Providers → **Google**): paste Client ID and Client secret, save. You can turn off **Email** if you only want Google.
+5. **Supabase — Google provider** (Authentication → Sign In / Providers → **Google**): enable and paste the **same** Client ID and Client secret as in `.env.local`. Supabase uses them to verify the Google `id_token` from Posterr (`signInWithIdToken`). You can disable **Email** if you only use Google.
 
-6. **Supabase — Site URL and Redirect URLs** (Authentication → URL Configuration).
-
-   - **Site URL**: match `NEXT_PUBLIC_SITE_URL` (e.g. `http://localhost:3000` locally, `https://www.posterr.xyz` in production if you use `www`).
-   - **Redirect URLs**: include both  
-     `http://localhost:3000/auth/callback`  
-     and your production callback, e.g. `https://www.posterr.xyz/auth/callback` (and the apex URL too if users might hit it before a redirect).
+6. **Supabase — URL Configuration** (Authentication → URL Configuration): **Site URL** must match `NEXT_PUBLIC_SITE_URL`. You can remove legacy `/auth/callback` redirect URLs if you are not using them; this app uses `/api/auth/google/callback` on your domain only.
 
 7. **Environment variables** — copy `.env.local.example` to `.env.local` and fill in:
 
@@ -67,12 +63,12 @@ If you prefer Windows-native tooling, clone the repo onto an **NTFS** path (e.g.
    |----------|----------|--------|
    | `NEXT_PUBLIC_SUPABASE_URL` | yes | Project URL |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Anon key |
-   | `NEXT_PUBLIC_SITE_URL` | yes | Origin only, no trailing slash (e.g. `http://localhost:3000`, production canonical URL) |
+   | `NEXT_PUBLIC_SITE_URL` | yes | Must match the origin used in Google redirect URIs (no trailing slash) |
+   | `GOOGLE_CLIENT_ID` | yes | Google OAuth Client ID (same value as in Supabase Google provider) |
+   | `GOOGLE_CLIENT_SECRET` | yes | Google OAuth Client secret (same value as in Supabase Google provider) |
    | `OPENAI_API_KEY` | yes | OpenAI API key |
    | `POSTERR_MODEL` | no | Defaults to `gpt-4.1-mini` |
-   | `SUPABASE_SERVICE_ROLE_KEY` | no | Not used by this MVP (keep server-only if you add admin scripts) |
-
-   Google credentials live in the Supabase dashboard only; you do not add Google secrets to `.env.local` for this flow.
+   | `SUPABASE_SERVICE_ROLE_KEY` | no | Not used by this MVP |
 
 8. **Run dev server**
 
@@ -80,7 +76,13 @@ If you prefer Windows-native tooling, clone the repo onto an **NTFS** path (e.g.
    npm run dev
    ```
 
-9. **Deploy to Vercel** — set the same env vars; production `NEXT_PUBLIC_SITE_URL` must match the canonical site (including `www` if you redirect apex → `www`).
+9. **Deploy to Vercel** — set the same env vars (including `GOOGLE_CLIENT_*`); production `NEXT_PUBLIC_SITE_URL` must match the Google redirect URI origin.
+
+### If you previously used Supabase-hosted Google OAuth
+
+1. In **Google Cloud** → your Web client → **Authorized redirect URIs**: delete `https://<ref>.supabase.co/auth/v1/callback`, add Posterr’s `/api/auth/google/callback` URLs as in step 4.
+2. In **Supabase** → URL Configuration: remove `/auth/callback` entries if you no longer need them.
+3. Keep **Supabase Google provider** enabled with the **same** OAuth client ID/secret as `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
 
 ## Scripts
 
