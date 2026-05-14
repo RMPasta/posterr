@@ -5,6 +5,15 @@ import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
+  const oauthError = searchParams.get("error");
+  const oauthDescription = searchParams.get("error_description");
+  if (oauthError) {
+    const msg = (oauthDescription ?? oauthError).replace(/\+/g, " ");
+    return NextResponse.redirect(
+      `${origin}/login?error=oauth&message=${encodeURIComponent(msg)}`,
+    );
+  }
+
   const code = searchParams.get("code");
   let next = searchParams.get("next") ?? "/dashboard";
   if (!next.startsWith("/") || next.startsWith("//")) {
@@ -38,6 +47,9 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    return NextResponse.redirect(
+      `${origin}/login?error=auth&message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth`);
