@@ -1,0 +1,24 @@
+import { redirect } from "next/navigation";
+
+import { AppShell } from "@/components/app-shell";
+import { ensureProfile } from "@/lib/db/profiles";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?next=/dashboard");
+  }
+
+  await ensureProfile(supabase, user);
+
+  return <AppShell>{children}</AppShell>;
+}
