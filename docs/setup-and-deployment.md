@@ -59,11 +59,14 @@ Values must match across **Vercel**, **Google redirect URIs**, and **Supabase UR
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client + server | Supabase anon (publishable) key; RLS still applies. |
 | `GOOGLE_CLIENT_ID` | Server only (used in Route Handlers) | Google OAuth client ID; must match Supabase Google provider. |
 | `GOOGLE_CLIENT_SECRET` | Server only | Google OAuth secret; **never** expose to the browser. Same pair as in Supabase Google provider. |
-| `OPENAI_API_KEY` | Server | Model calls for generation. |
-| `POSTERR_MODEL` | Server | Optional; defaults in code if unset. |
+| `OPENAI_API_KEY` | Server | Model calls for generation and web research. |
+| `POSTERR_MODEL` | Server | Optional; defaults in code if unset. Used for the main draft generation step. |
+| `POSTERR_RESEARCH_MODEL` | Server | Optional. If set, used only for the **web research** step (`gatherWebResearch`). Must be an OpenAI model id that supports the hosted **web search** tool with structured output (same account as `OPENAI_API_KEY`). If unset, `POSTERR_MODEL` is used for research as well. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Optional | Not used by this MVP; do not expose publicly. |
 
 **Important:** `GOOGLE_CLIENT_*` is read only on the server (API routes). `NEXT_PUBLIC_*` is embedded in the client bundle—never put secrets there.
+
+**OpenAI web research:** Each generation runs a research pass that may call OpenAI web search (billable). If that step errors in your account (model not allowed, tool unavailable), set `POSTERR_RESEARCH_MODEL` to a model your project supports or adjust model access in the OpenAI dashboard.
 
 ---
 
@@ -147,6 +150,10 @@ Configure app name (e.g. Posterr), support email, and (when required) privacy po
 2. Framework preset: **Next.js**.
 3. Add **every** env var from section 4 for **Production** (and **Preview** if you want preview deployments to work with real auth—then Preview needs its own Google redirect URI such as `https://<preview>.vercel.app/api/auth/google/callback`, or accept that previews skip OAuth).
 4. Redeploy after changing env vars.
+
+### 8.1 Vercel Web Analytics
+
+The app includes `@vercel/analytics` (`<Analytics />` in `app/layout.tsx`). In the Vercel dashboard open your project → **Analytics** → enable **Web Analytics** for the project, then redeploy. The default Web Analytics setup does **not** require extra environment variables.
 
 Production `NEXT_PUBLIC_SITE_URL` must be your **canonical** public URL (including `www` if that is what users use).
 

@@ -45,6 +45,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
   const [savePending, startSave] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [generated, setGenerated] = useState<GeneratedPost | null>(null);
+  const [outputPlatform, setOutputPlatform] = useState<string | null>(null);
   const [msgIdx, setMsgIdx] = useState(0);
 
   const mergedDefaults = useMemo(() => {
@@ -68,13 +69,14 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
 
   function runGenerate() {
     setError(null);
-    const fd = new FormData(formRef.current ?? undefined);
     startTransition(async () => {
+      const fd = new FormData(formRef.current ?? undefined);
       const res = await generateDraftAction(fd);
       if (!res.ok) {
         setError(res.error);
         return;
       }
+      setOutputPlatform(String(fd.get("platform") ?? ""));
       setGenerated(res.data);
     });
   }
@@ -105,6 +107,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
 
   function clearAll() {
     setGenerated(null);
+    setOutputPlatform(null);
     setError(null);
     formRef.current?.reset();
   }
@@ -171,7 +174,10 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
 
         <div className="space-y-1">
           <FieldLabel htmlFor="researchNotes">Research notes (optional)</FieldLabel>
-          <Textarea id="researchNotes" name="researchNotes" placeholder="Facts you want respected, no invented citations." />
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Posterr runs web research on each generate, then merges your notes below.
+          </p>
+          <Textarea id="researchNotes" name="researchNotes" placeholder="Facts or links you want respected; nothing invented." />
         </div>
         <div className="space-y-1">
           <FieldLabel htmlFor="avoidList">Things to avoid (optional)</FieldLabel>
@@ -213,7 +219,11 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
           virality.
         </p>
         {generated ? (
-          <GeneratedOutput value={generated} onChange={setGenerated} />
+          <GeneratedOutput
+            value={generated}
+            onChange={setGenerated}
+            platform={outputPlatform ?? mergedDefaults.platform}
+          />
         ) : (
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300">
             <p>Your draft will appear here.</p>

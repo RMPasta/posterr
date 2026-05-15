@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 
+import { FieldLabel } from "@/components/generator/option-select";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FieldLabel } from "@/components/generator/option-select";
 import { Textarea } from "@/components/ui/textarea";
+import { glyphCount, X_FREE_MAX_GLYPHS } from "@/lib/ai/x-platform-text";
 import type { GeneratedPost } from "@/types/post";
 
 const tabs = [
@@ -23,9 +24,10 @@ type TabId = (typeof tabs)[number]["id"];
 type GeneratedOutputProps = {
   value: GeneratedPost;
   onChange: (next: GeneratedPost) => void;
+  platform?: string;
 };
 
-export function GeneratedOutput({ value, onChange }: GeneratedOutputProps) {
+export function GeneratedOutput({ value, onChange, platform }: GeneratedOutputProps) {
   const [tab, setTab] = useState<TabId>("main");
   const [flash, setFlash] = useState<string | null>(null);
 
@@ -87,6 +89,11 @@ export function GeneratedOutput({ value, onChange }: GeneratedOutputProps) {
               </Button>
             </div>
             <FieldLabel htmlFor="out-main">Main draft</FieldLabel>
+            {platform === "x" ? (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                {glyphCount(value.mainDraft)} / {X_FREE_MAX_GLYPHS} characters (X free tier max)
+              </p>
+            ) : null}
             <Textarea
               id="out-main"
               value={value.mainDraft}
@@ -105,6 +112,11 @@ export function GeneratedOutput({ value, onChange }: GeneratedOutputProps) {
               </Button>
             </div>
             <FieldLabel htmlFor="out-short">Short version</FieldLabel>
+            {platform === "x" ? (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                {glyphCount(value.shortVersion)} / {X_FREE_MAX_GLYPHS} characters (X free tier max)
+              </p>
+            ) : null}
             <Textarea
               id="out-short"
               value={value.shortVersion}

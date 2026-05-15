@@ -3,14 +3,16 @@ import "server-only";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output, zodSchema } from "ai";
 
+import { gatherWebResearch } from "@/lib/ai/gather-research";
 import { posterrSystemPrompt } from "@/lib/ai/posterr-system-prompt";
 import {
   GeneratedPostSchema,
   type GeneratorInputParsed,
   type GeneratedPostParsed,
 } from "@/lib/ai/schemas";
+import { clampPostStringsForX, type LengthOption } from "@/lib/ai/x-platform-text";
 
-function buildUserPrompt(input: GeneratorInputParsed): string {
+function buildUserPrompt(input: GeneratorInputParsed, mergedResearch: string): string {
   return `Create a post using the following inputs:
 
 Raw idea:
@@ -34,8 +36,8 @@ ${input.tone}
 Length:
 ${input.length}
 
-Research notes:
-${input.researchNotes?.trim() || "(none)"}
+Research context (automated web research plus your notes):
+${mergedResearch.trim() || "(none)"}
 
 Things to avoid:
 ${input.avoidList?.trim() || "(none)"}
@@ -65,6 +67,15 @@ export async function generatePost(
     throw new Error("Missing OPENAI_API_KEY.");
   }
 
+  const webBlock = await gatherWebResearch({
+    rawIdea: input.rawIdea,
+    platform: input.platform,
+    audience: input.audience,
+  });
+  const mergedResearch = [webBlock, input.researchNotes?.trim() ?? ""]
+    .filter((s) => s.length > 0)
+    .join("\n\n---\n\n");
+
   const modelName = process.env.POSTERR_MODEL ?? "gpt-4.1-mini";
   const openai = createOpenAI({ apiKey });
   const model = openai(modelName);
@@ -72,7 +83,7 @@ export async function generatePost(
   const { output: result } = await generateText({
     model,
     system: posterrSystemPrompt,
-    prompt: buildUserPrompt(input),
+    prompt: buildUserPrompt(input, mergedResearch),
     output: Output.object({
       schema: zodSchema(GeneratedPostSchema),
       name: "posterr_draft",
@@ -85,5 +96,15 @@ export async function generatePost(
     throw new Error("Model returned no structured output.");
   }
 
-  return GeneratedPostSchema.parse(result);
+  const parsed = GeneratedPostSchema.parse(result);
+  const clamped = clampPostStringsForX(
+    { mainDraft: parsed.mainDraft, shortVersion: parsed.shortVersion },
+    { platform: input.platform, length: input.length as LengthOption },
+  );
+
+  return GeneratedPostSchema.parse({
+    ...parsed,
+    mainDraft: clamped.mainDraft,
+    shortVersion: clamped.shortVersion,
+  });
 }
