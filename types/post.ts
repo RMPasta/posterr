@@ -34,6 +34,7 @@ export type GeneratorInput = {
   tone: Tone;
   length: Length;
   doResearch?: boolean;
+  requireCitations?: boolean;
   researchNotes?: string;
   avoidList?: string;
   ctaStyle?: CtaStyle;

@@ -47,6 +47,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
   const [generated, setGenerated] = useState<GeneratedPost | null>(null);
   const [outputPlatform, setOutputPlatform] = useState<string | null>(null);
   const [doResearch, setDoResearch] = useState(true);
+  const [requireCitations, setRequireCitations] = useState(true);
   const [msgIdx, setMsgIdx] = useState(0);
 
   const mergedDefaults = useMemo(() => {
@@ -110,6 +111,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
     setGenerated(null);
     setOutputPlatform(null);
     setDoResearch(true);
+    setRequireCitations(true);
     setError(null);
     formRef.current?.reset();
   }
@@ -192,6 +194,26 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
             </p>
           </div>
           <input type="hidden" name="doResearch" value={doResearch ? "1" : "0"} />
+        </div>
+
+        <div className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2.5 dark:border-zinc-700 dark:bg-zinc-900/40">
+          <input
+            id="requireCitations"
+            type="checkbox"
+            className="mt-1 size-4 shrink-0 rounded border-zinc-300 text-sky-700 focus:ring-sky-600 dark:border-zinc-600 dark:bg-zinc-950"
+            checked={requireCitations}
+            onChange={(e) => setRequireCitations(e.target.checked)}
+          />
+          <div className="min-w-0 flex-1">
+            <label htmlFor="requireCitations" className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              Require citations in the post
+            </label>
+            <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
+              When on, the draft ties factual claims to named sources and URLs from the research context. Turn off for
+              looser, opinion-only writing.
+            </p>
+          </div>
+          <input type="hidden" name="requireCitations" value={requireCitations ? "1" : "0"} />
         </div>
 
         <div className="space-y-1">

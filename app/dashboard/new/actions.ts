@@ -33,6 +33,12 @@ export async function generateDraftAction(
       ? true
       : !["0", "false", "off", "no"].includes(String(doResearchRaw).trim().toLowerCase());
 
+  const requireCitationsRaw = formData.get("requireCitations");
+  const requireCitations =
+    requireCitationsRaw === null || requireCitationsRaw === undefined
+      ? false
+      : !["0", "false", "off", "no"].includes(String(requireCitationsRaw).trim().toLowerCase());
+
   const parsed = GeneratorInputSchema.safeParse({
     rawIdea: String(formData.get("rawIdea") ?? ""),
     platform: String(formData.get("platform") ?? ""),
@@ -42,6 +48,7 @@ export async function generateDraftAction(
     tone: String(formData.get("tone") ?? ""),
     length: String(formData.get("length") ?? ""),
     doResearch,
+    requireCitations,
     researchNotes: String(formData.get("researchNotes") ?? "") || undefined,
     avoidList: String(formData.get("avoidList") ?? "") || undefined,
     ctaStyle: String(formData.get("ctaStyle") ?? "") || undefined,

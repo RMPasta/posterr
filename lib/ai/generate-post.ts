@@ -48,7 +48,17 @@ ${input.ctaStyle ?? "none"}
 Hard bans for this run:
 - No em dash (—) or "--" as punctuation.
 - No "not just X, it's Y" style framing.
-
+${
+  input.requireCitations
+    ? `
+Citation mode (required for this run):
+- In mainDraft, shortVersion, and alternateVersion, cite sources for substantive factual claims that rest on the research context (not on the raw idea alone).
+- Use a compact style: outlet or site name plus the page URL in parentheses when length allows; on very tight limits (for example X), put the outlet name in the sentence and add the URL on the next short line or in platformNotes if the body cannot fit.
+- Only cite sources that appear in the research context above. Do not invent URLs or outlets.
+- If the research context does not support a claim, soften or remove the claim instead of fabricating a citation.
+`
+    : ""
+}
 Generate:
 1. title
 2. mainDraft
