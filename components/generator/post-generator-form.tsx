@@ -46,6 +46,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [generated, setGenerated] = useState<GeneratedPost | null>(null);
   const [outputPlatform, setOutputPlatform] = useState<string | null>(null);
+  const [doResearch, setDoResearch] = useState(true);
   const [msgIdx, setMsgIdx] = useState(0);
 
   const mergedDefaults = useMemo(() => {
@@ -108,6 +109,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
   function clearAll() {
     setGenerated(null);
     setOutputPlatform(null);
+    setDoResearch(true);
     setError(null);
     formRef.current?.reset();
   }
@@ -172,10 +174,32 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
           />
         </div>
 
+        <div className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2.5 dark:border-zinc-700 dark:bg-zinc-900/40">
+          <input
+            id="doResearch"
+            type="checkbox"
+            className="mt-1 size-4 shrink-0 rounded border-zinc-300 text-sky-700 focus:ring-sky-600 dark:border-zinc-600 dark:bg-zinc-950"
+            checked={doResearch}
+            onChange={(e) => setDoResearch(e.target.checked)}
+          />
+          <div className="min-w-0 flex-1">
+            <label htmlFor="doResearch" className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              Run web research
+            </label>
+            <p className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
+              Uses a small OpenAI model plus web search (extra cost). Turn off if you only want your notes below or
+              already have citations.
+            </p>
+          </div>
+          <input type="hidden" name="doResearch" value={doResearch ? "1" : "0"} />
+        </div>
+
         <div className="space-y-1">
           <FieldLabel htmlFor="researchNotes">Research notes (optional)</FieldLabel>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Posterr runs web research on each generate, then merges your notes below.
+            {doResearch
+              ? "Automated research runs first when enabled, then merges with anything you add here."
+              : "Only what you type here is sent as research context (no automated web search)."}
           </p>
           <Textarea id="researchNotes" name="researchNotes" placeholder="Facts or links you want respected; nothing invented." />
         </div>

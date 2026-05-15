@@ -27,6 +27,12 @@ export async function generateDraftAction(
     return { ok: false, error: "Your session expired. Sign in again." };
   }
 
+  const doResearchRaw = formData.get("doResearch");
+  const doResearch =
+    doResearchRaw === null || doResearchRaw === undefined
+      ? true
+      : !["0", "false", "off", "no"].includes(String(doResearchRaw).trim().toLowerCase());
+
   const parsed = GeneratorInputSchema.safeParse({
     rawIdea: String(formData.get("rawIdea") ?? ""),
     platform: String(formData.get("platform") ?? ""),
@@ -35,6 +41,7 @@ export async function generateDraftAction(
     writingLevel: String(formData.get("writingLevel") ?? ""),
     tone: String(formData.get("tone") ?? ""),
     length: String(formData.get("length") ?? ""),
+    doResearch,
     researchNotes: String(formData.get("researchNotes") ?? "") || undefined,
     avoidList: String(formData.get("avoidList") ?? "") || undefined,
     ctaStyle: String(formData.get("ctaStyle") ?? "") || undefined,

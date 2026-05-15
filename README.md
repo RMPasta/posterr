@@ -70,6 +70,7 @@ If you prefer Windows-native tooling, clone the repo onto an **NTFS** path (e.g.
    | `GOOGLE_CLIENT_SECRET` | yes | Google OAuth Client secret (same value as in Supabase Google provider) |
    | `OPENAI_API_KEY` | yes | OpenAI API key |
    | `POSTERR_MODEL` | no | Defaults to `gpt-4.1-mini` |
+   | `POSTERR_RESEARCH_MODEL` | no | Web research step only; defaults to `gpt-4o-mini` in code if unset |
    | `SUPABASE_SERVICE_ROLE_KEY` | no | Not used by this MVP |
 
 8. **Run dev server**
@@ -91,6 +92,7 @@ If you prefer Windows-native tooling, clone the repo onto an **NTFS** path (e.g.
 - `npm run dev` — local development
 - `npm run build` — production build
 - `npm run lint` — ESLint
+- `npm run test` — Vitest (unit tests)
 
 ## Stack
 

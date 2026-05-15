@@ -36,6 +36,8 @@ export const GeneratorInputSchema = z.object({
   writingLevel: z.enum(writingLevelValues),
   tone: z.enum(toneValues),
   length: z.enum(lengthValues),
+  /** When true, runs automated web research before drafting (default). */
+  doResearch: z.boolean(),
   researchNotes: z.string().optional(),
   avoidList: z.string().optional(),
   ctaStyle: z.enum(ctaValues).optional(),

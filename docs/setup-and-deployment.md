@@ -61,12 +61,12 @@ Values must match across **Vercel**, **Google redirect URIs**, and **Supabase UR
 | `GOOGLE_CLIENT_SECRET` | Server only | Google OAuth secret; **never** expose to the browser. Same pair as in Supabase Google provider. |
 | `OPENAI_API_KEY` | Server | Model calls for generation and web research. |
 | `POSTERR_MODEL` | Server | Optional; defaults in code if unset. Used for the main draft generation step. |
-| `POSTERR_RESEARCH_MODEL` | Server | Optional. If set, used only for the **web research** step (`gatherWebResearch`). Must be an OpenAI model id that supports the hosted **web search** tool with structured output (same account as `OPENAI_API_KEY`). If unset, `POSTERR_MODEL` is used for research as well. |
+| `POSTERR_RESEARCH_MODEL` | Server | Optional. Overrides the model for **web research only**. Default in code is **`gpt-4o-mini`** (cheap; must support OpenAI hosted web search + structured output with your account). |
 | `SUPABASE_SERVICE_ROLE_KEY` | Optional | Not used by this MVP; do not expose publicly. |
 
 **Important:** `GOOGLE_CLIENT_*` is read only on the server (API routes). `NEXT_PUBLIC_*` is embedded in the client bundle—never put secrets there.
 
-**OpenAI web research:** Each generation runs a research pass that may call OpenAI web search (billable). If that step errors in your account (model not allowed, tool unavailable), set `POSTERR_RESEARCH_MODEL` to a model your project supports or adjust model access in the OpenAI dashboard.
+**OpenAI web research:** When “Run web research” is on (the default), each generate calls a separate research step (billable). It uses `POSTERR_RESEARCH_MODEL` if set, otherwise **`gpt-4o-mini`**. The main draft still uses `POSTERR_MODEL`. If the research step errors (model not allowed, tool unavailable), set `POSTERR_RESEARCH_MODEL` to a supported id or turn research off in the generator.
 
 ---
 

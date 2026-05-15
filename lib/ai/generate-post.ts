@@ -36,7 +36,7 @@ ${input.tone}
 Length:
 ${input.length}
 
-Research context (automated web research plus your notes):
+Research context:
 ${mergedResearch.trim() || "(none)"}
 
 Things to avoid:
@@ -67,14 +67,20 @@ export async function generatePost(
     throw new Error("Missing OPENAI_API_KEY.");
   }
 
-  const webBlock = await gatherWebResearch({
-    rawIdea: input.rawIdea,
-    platform: input.platform,
-    audience: input.audience,
-  });
-  const mergedResearch = [webBlock, input.researchNotes?.trim() ?? ""]
-    .filter((s) => s.length > 0)
-    .join("\n\n---\n\n");
+  const notes = input.researchNotes?.trim() ?? "";
+  let mergedResearch: string;
+  if (input.doResearch) {
+    const webBlock = await gatherWebResearch({
+      rawIdea: input.rawIdea,
+      platform: input.platform,
+      audience: input.audience,
+    });
+    mergedResearch = [webBlock, notes].filter((s) => s.length > 0).join("\n\n---\n\n");
+  } else {
+    mergedResearch =
+      notes ||
+      "Automated web research was turned off for this run. Rely on the raw idea and cautious language; do not invent outlets, stats, or URLs.";
+  }
 
   const modelName = process.env.POSTERR_MODEL ?? "gpt-4.1-mini";
   const openai = createOpenAI({ apiKey });

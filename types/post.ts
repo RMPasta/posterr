@@ -33,6 +33,7 @@ export type GeneratorInput = {
   writingLevel: WritingLevel;
   tone: Tone;
   length: Length;
+  doResearch?: boolean;
   researchNotes?: string;
   avoidList?: string;
   ctaStyle?: CtaStyle;

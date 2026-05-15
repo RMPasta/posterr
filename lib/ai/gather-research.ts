@@ -16,8 +16,7 @@ export async function gatherWebResearch(args: {
   }
 
   const openai = createOpenAI({ apiKey });
-  const modelName =
-    process.env.POSTERR_RESEARCH_MODEL ?? process.env.POSTERR_MODEL ?? "gpt-4.1-mini";
+  const modelName = process.env.POSTERR_RESEARCH_MODEL ?? "gpt-4o-mini";
 
   const { output } = await generateText({
     model: openai(modelName),
