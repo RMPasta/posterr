@@ -46,6 +46,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [generated, setGenerated] = useState<GeneratedPost | null>(null);
   const [outputPlatform, setOutputPlatform] = useState<string | null>(null);
+  const [outputLength, setOutputLength] = useState<string | null>(null);
   const [doResearch, setDoResearch] = useState(true);
   const [requireCitations, setRequireCitations] = useState(true);
   const [msgIdx, setMsgIdx] = useState(0);
@@ -79,6 +80,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
         return;
       }
       setOutputPlatform(String(fd.get("platform") ?? ""));
+      setOutputLength(String(fd.get("length") ?? ""));
       setGenerated(res.data);
     });
   }
@@ -110,6 +112,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
   function clearAll() {
     setGenerated(null);
     setOutputPlatform(null);
+    setOutputLength(null);
     setDoResearch(true);
     setRequireCitations(true);
     setError(null);
@@ -271,6 +274,7 @@ export function PostGeneratorForm({ defaults }: PostGeneratorFormProps) {
             value={generated}
             onChange={setGenerated}
             platform={outputPlatform ?? mergedDefaults.platform}
+            length={outputLength ?? mergedDefaults.length}
           />
         ) : (
           <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300">

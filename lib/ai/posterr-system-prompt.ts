@@ -36,9 +36,9 @@ Blog:
 - Explain claims.
 
 X/Twitter:
-- Keep it concise.
-- No thread unless needed.
-- Avoid engagement bait.
+- Keep it concise for a single post, but use line breaks generously: newline after short sentences, and a blank line between separate beats or ideas so it reads clearly in the timeline (this layout is common and works well).
+- No numbered thread ("1/5") unless the user clearly wants a thread.
+- Avoid engagement bait hooks.
 - Can be slightly punchier, but still normal.
 
 LinkedIn:

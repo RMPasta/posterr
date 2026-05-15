@@ -44,7 +44,14 @@ ${input.avoidList?.trim() || "(none)"}
 
 CTA style:
 ${input.ctaStyle ?? "none"}
-
+${
+  input.platform === "x"
+    ? `
+X layout for this run:
+- In mainDraft, shortVersion, and alternateVersion, prefer extra line breaks over dense paragraphs: short lines, newlines between thoughts, blank lines between distinct beats.
+`
+    : ""
+}
 Hard bans for this run:
 - No em dash (—) or "--" as punctuation.
 - No "not just X, it's Y" style framing.

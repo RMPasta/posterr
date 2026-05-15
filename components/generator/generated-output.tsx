@@ -7,7 +7,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { glyphCount, X_FREE_MAX_GLYPHS } from "@/lib/ai/x-platform-text";
+import { glyphCount, xGlyphLimitFor, X_FREE_MAX_GLYPHS, type LengthOption } from "@/lib/ai/x-platform-text";
 import type { GeneratedPost } from "@/types/post";
 
 const tabs = [
@@ -25,11 +25,20 @@ type GeneratedOutputProps = {
   value: GeneratedPost;
   onChange: (next: GeneratedPost) => void;
   platform?: string;
+  /** Length option from the generator form; used with platform x for glyph limit labels. */
+  length?: string;
 };
 
-export function GeneratedOutput({ value, onChange, platform }: GeneratedOutputProps) {
+export function GeneratedOutput({ value, onChange, platform, length }: GeneratedOutputProps) {
   const [tab, setTab] = useState<TabId>("main");
   const [flash, setFlash] = useState<string | null>(null);
+
+  const xLength: LengthOption | null =
+    length === "short" || length === "medium" || length === "long" ? length : null;
+
+  const xMainMax = platform === "x" ? (xLength ? xGlyphLimitFor("mainDraft", xLength) : X_FREE_MAX_GLYPHS) : null;
+  const xShortMax =
+    platform === "x" ? (xLength ? xGlyphLimitFor("shortVersion", xLength) : X_FREE_MAX_GLYPHS) : null;
 
   const checklistText = useMemo(
     () => value.antiAiChecklist.join("\n"),
@@ -89,9 +98,10 @@ export function GeneratedOutput({ value, onChange, platform }: GeneratedOutputPr
               </Button>
             </div>
             <FieldLabel htmlFor="out-main">Main draft</FieldLabel>
-            {platform === "x" ? (
+            {platform === "x" && xMainMax != null ? (
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {glyphCount(value.mainDraft)} / {X_FREE_MAX_GLYPHS} characters (X free tier max)
+                {glyphCount(value.mainDraft)} / {xMainMax} characters (X free tier cap
+                {xLength ? " for this length setting" : ""})
               </p>
             ) : null}
             <Textarea
@@ -112,9 +122,10 @@ export function GeneratedOutput({ value, onChange, platform }: GeneratedOutputPr
               </Button>
             </div>
             <FieldLabel htmlFor="out-short">Short version</FieldLabel>
-            {platform === "x" ? (
+            {platform === "x" && xShortMax != null ? (
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {glyphCount(value.shortVersion)} / {X_FREE_MAX_GLYPHS} characters (X free tier max)
+                {glyphCount(value.shortVersion)} / {xShortMax} characters (X free tier cap
+                {xLength ? " for this length setting" : ""})
               </p>
             ) : null}
             <Textarea
