@@ -7,7 +7,8 @@ export const ResearchBriefSchema = z.object({
     .array(
       z.object({
         title: z.string().min(1),
-        url: z.string().url(),
+        // Plain string: z.string().url() becomes JSON Schema format "uri", which OpenAI rejects for structured outputs.
+        url: z.string().min(1),
       }),
     )
     .max(6),
