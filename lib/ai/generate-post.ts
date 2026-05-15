@@ -43,6 +43,10 @@ ${input.avoidList?.trim() || "(none)"}
 CTA style:
 ${input.ctaStyle ?? "none"}
 
+Hard bans for this run:
+- No em dash (—) or "--" as punctuation.
+- No "not just X, it's Y" style framing.
+
 Generate:
 1. title
 2. mainDraft
